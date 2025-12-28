@@ -592,6 +592,8 @@ function formatKST(iso) {
   }
 }
 
-app.listen(PORT, () => {
-  console.log(`✅ 신년계획서 서버 실행: http://localhost:${PORT}`);
+const PORT = process.env.PORT || 10000;
+
+app.listen(PORT, "0.0.0.0", () => {
+  console.log(`✅ 신년계획서 서버 실행: http://0.0.0.0:${PORT}`);
 });
