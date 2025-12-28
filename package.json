@@ -1,0 +1,17 @@
+{
+  "name": "newyear-planner-locksite",
+  "version": "1.0.0",
+  "description": "방 링크 공유형 신년계획서: 간단 로그인, 전체 공개 목록, 보스 종료(365일 잠금), 1년 뒤 자동 오픈",
+  "main": "server.js",
+  "type": "commonjs",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js"
+  },
+  "dependencies": {
+    "cookie-parser": "^1.4.6",
+    "dotenv": "^16.4.5",
+    "express": "^4.19.2",
+    "helmet": "^7.1.0"
+  }
+}
