@@ -48,7 +48,31 @@
     } catch {
       return iso;
     }
-  }
+  }// ✅ [추가] 종료 후 남은 시간 표시용 유틸
+function addOneYearISO(iso) {
+  if (!iso) return null;
+  const d = new Date(iso);
+  d.setUTCFullYear(d.getUTCFullYear() + 1);
+  return d.toISOString();
+}
+
+function formatRemain(ms) {
+  if (ms <= 0) return "0일 00시간 00분 00초";
+  const sec = Math.floor(ms / 1000);
+  const days = Math.floor(sec / 86400);
+  const hours = Math.floor((sec % 86400) / 3600);
+  const mins = Math.floor((sec % 3600) / 60);
+  const secs = sec % 60;
+  const p2 = (n) => String(n).padStart(2, "0");
+  return `${days}일 ${p2(hours)}시간 ${p2(mins)}분 ${p2(secs)}초`;
+}
+
+function remainUntil(iso) {
+  if (!iso) return "(알 수 없음)";
+  const target = new Date(iso).getTime();
+  const now = Date.now();
+  return formatRemain(target - now);
+}
 
   function roomIdFromPath() {
     const m = location.pathname.match(/^\/r\/([0-9a-f]{10})$/i);
@@ -456,16 +480,26 @@ function field(label, id, value, placeholder = "") {
     }
   }
 
-  async function onEnd() {
-    if (!confirm("종료하면 365일 동안 글쓰기/수정/삭제가 잠깁니다.\n정말 종료할까요?")) return;
-    try {
-      const r = await api(`/api/rooms/${state.roomId}/boss/end`, { method: "POST", body: "{}" });
-      toast("종료 완료! 잠금 시각: " + kst(r.lockedAt));
-      location.reload();
-    } catch (e) {
-      toast("종료 실패: " + (e.data?.error || e.message));
-    }
+ async function onEnd() {
+  if (!confirm("종료하면 365일 동안 글쓰기/수정/삭제가 잠깁니다.\n정말 종료할까요?")) return;
+  try {
+    const r = await api(`/api/rooms/${state.roomId}/boss/end`, { method: "POST", body: "{}" });
+
+    const lockedAt = r.lockedAt;
+    const unlockAt = r.unlockAt || addOneYearISO(lockedAt);
+
+    toast(
+      "종료 완료!\n" +
+      "잠금 시각: " + kst(lockedAt) + "\n" +
+      "열람 가능: " + kst(unlockAt) + "\n" +
+      "남은 시간: " + remainUntil(unlockAt)
+    );
+
+    location.reload();
+  } catch (e) {
+    toast("종료 실패: " + (e.data?.error || e.message));
   }
+}
 
   function copyLink() {
     const url = `${location.origin}/r/${state.roomId}`;
